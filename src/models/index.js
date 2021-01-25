@@ -1,4 +1,5 @@
 
 module.exports = {
-  User: require('./user.model')
+  User: require('./user.model'),
+  Event: require('./event.model')
 }
