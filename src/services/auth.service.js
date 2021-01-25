@@ -43,8 +43,7 @@ const signup = async (newUser) => {
  * @param {String} token JWT token 
  */
 const me = async (token) => {
-  const decoded = await jwt.decrypt(token)
-  return decoded
+  return jwt.decrypt(token)
 }
 
 module.exports = {
