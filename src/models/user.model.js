@@ -39,6 +39,22 @@ schema.methods.checkPassword = function (password) {
 }
 
 /**
+ * @param {String} eventId database id of desired event 
+ */
+schema.methods.addEvent = function (eventId) {
+  let eventIndex = this.events.indexOf(eventId)
+  if(eventIndex < 0) this.events.push(eventId)
+}
+
+/**
+ * @param {String} eventId database id of desired event 
+ */
+schema.methods.removeEvent = function (eventId) {
+  let eventIndex = this.events.indexOf(eventId)
+  if(eventIndex >= 0) this.events.splice(eventIndex, 1)
+}
+
+/**
  * Validates given object against user schema
  * 
  * @param {Object} model attempted user object
