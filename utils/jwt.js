@@ -32,8 +32,23 @@ const validateToken = (req, res, next) => {
   }
 }
 
+const checkAccess = async (req, res, next) => {
+  if(req.headers.authorization) {
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = await decryptToken(token)
+    console.log(decoded)
+    if(decoded.access >= 2) {
+      console.log('granted')
+      return next()
+    } else {
+      res.status(401).json(new APIError('Insufficient permissions'), 401)
+    }
+  }
+}
+
 module.exports = {
   generate: generateToken,
   validate: validateToken,
-  decrypt: decryptToken
+  decrypt: decryptToken,
+  checkAccess: checkAccess
 }
