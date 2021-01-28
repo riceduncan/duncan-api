@@ -1,0 +1,514 @@
+openapi: "3.0.0"
+info:
+  description: "Endpoints for Duncan website API."
+  version: "1.0.0"
+  title: "Duncan API"
+servers:
+  - url: https://duncan-api.herokuapp.com/api/v1
+    description: Production server
+tags:
+- name: "auth"
+  description: "Authentication/Authorization"
+- name: "announcement"
+  description: "Announcement Management"
+- name: "event"
+  description: "Event Management"
+- name: "user"
+  description: "User Management"
+paths:
+############################
+########### AUTH ###########
+############################
+  /auth/login:
+    post:
+      tags:
+      - "auth"
+      summary: "Login an existing user."
+      requestBody:
+        description: "Existing user credentials."
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: "Login success."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: "JWT token - encodes user information"
+        "401":
+          description: "Incorrect password."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: "User not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /auth/signup:
+    post:
+      tags:
+      - "auth"
+      summary: "Creates a new user."
+      requestBody:
+        description: "Properties of new user."
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: "Login success."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: "JWT token - encodes user information"
+        "400":
+          description: "Email already taken."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: "User not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /auth/me:
+    get:
+      tags:
+      - "auth"
+      summary: "Gets user information from JWT token."
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: "Successfully retrieved user."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "404":
+          description: "User not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+#############################
+########### EVENT ###########
+#############################
+  /events:
+    get:
+      tags:
+      - "event"
+      summary: "Get all stored events."
+      responses:
+        "200":
+          description: "Successfully retrieved events."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+    post:
+      tags:
+      - "event"
+      summary: "Create an event. Requires admin access level."
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: "New event information."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        "201":
+          description: "Successfully created event."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        "401":
+          description: "Unauthorized to create event."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /events/{id}:
+    get:
+      tags:
+      - "event"
+      summary: "Get event corresponding to ID."
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "MongoDB object ID of event."
+      responses:
+        "200":
+          description: "Successfully retrieved event."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        "404":
+          description: "Event not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+    put:
+      tags:
+      - "event"
+      summary: "Update event corresponding to ID. Requires admin access level."
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "MongoDB object ID of event."
+      responses:
+        "200":
+          description: "Successfully updated event. Returns **old** event information."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        "404":
+          description: "Event not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+    delete:
+      tags:
+      - "event"
+      summary: "Delete event corresponding to ID. Requires admin access level."
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "MongoDB object ID of event."
+      responses:
+        "200":
+          description: "Successfully deleted event."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        "404":
+          description: "Event not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+################################
+########### ANNOUNCE ###########
+################################
+  /announcements:
+    get:
+      tags:
+      - "announcement"
+      summary: "Get all stored announcements."
+      responses:
+        "200":
+          description: "Successfully retrieved announcements."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Announcement'
+    post:
+      tags:
+      - "announcement"
+      summary: "Create an announcement. Requires admin access level."
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: "New announcement information."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Announcement'
+      responses:
+        "201":
+          description: "Successfully created announcement."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        "401":
+          description: "Unauthorized to create announcement."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /announcements/{id}:
+    get:
+      tags:
+      - "announcement"
+      summary: "Get announcement corresponding to ID."
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "MongoDB object ID of announcement."
+      responses:
+        "200":
+          description: "Successfully retrieved announcement."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        "404":
+          description: "Announcement not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+    put:
+      tags:
+      - "announcement"
+      summary: "Update announcement corresponding to ID. Requires admin access level."
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "MongoDB object ID of announcement."
+      responses:
+        "200":
+          description: "Successfully retrieved announcement."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        "404":
+          description: "Announcement not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+    delete:
+      tags:
+      - "announcement"
+      summary: "Delete announcement corresponding to ID. Requires admin access level."
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "MongoDB object ID of announcement."
+      responses:
+        "200":
+          description: "Successfully retrieved announcement."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        "404":
+          description: "Announcement not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+############################
+########### USER ###########
+############################
+  /users/{userId}/register/{eventId}:
+    post:
+      tags:
+      - "user"
+      summary: "Register specific user to specific event."
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: "MongoDB object ID of user."
+        - in: path
+          name: eventId
+          schema:
+            type: string
+          required: true
+          description: "MongoDB object ID of event."
+      responses:
+        "200":
+          description: "Successfully registered user for event."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/User'
+                    - $ref: '#/components/schemas/Event'
+        "401":
+          description: "Unauthorized to register user for event."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: "User/Event not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /users/{userId}/remove/{eventId}:
+    post:
+      tags:
+      - "user"
+      summary: "Unregister specific user from specific event."
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: "MongoDB object ID of user."
+        - in: path
+          name: eventId
+          schema:
+            type: string
+          required: true
+          description: "MongoDB object ID of event."
+      responses:
+        "200":
+          description: "Successfully unregistered user from event."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/User'
+                    - $ref: '#/components/schemas/Event'
+        "401":
+          description: "Unauthorized to register user for event."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        "404":
+          description: "User/event not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        message:
+          type: string
+        status:
+          type: number
+        timestamp:
+          type: number
+    Announcement:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        date:
+          type: string
+        isUrgent:
+          type: boolean
+        _id:
+          type: string
+    Event:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
+        registered:
+          type: array
+          items:
+            type: string
+        date:
+          type: string
+        _id:
+          type: string
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        access:
+          type: number
+        email:
+          type: string
+        password:
+          type: string
+        events:
+          type: array
+          items:
+            type: string
+        _id:
+          type: string

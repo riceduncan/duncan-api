@@ -4,8 +4,11 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
+const swagger = require('swagger-ui-express')
+const yaml = require('yamljs')
 
 const routes = require('../src/controllers')
+const docs = yaml.load('docs/openapi.yaml')
 
 /**
  * Initializes web server and connects to DB
@@ -18,6 +21,7 @@ const run = (port, dbUri) => {
 
   app.use(bodyParser.json())
   app.use('/api/v1', routes)
+  app.use('/docs', swagger.serve, swagger.setup(docs))
 
   mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true }).then( () => {
     app.listen(port, () => {
