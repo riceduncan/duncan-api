@@ -38,10 +38,9 @@ const checkAccess = async (req, res, next) => {
     const decoded = await decryptToken(token)
     console.log(decoded)
     if(decoded.access >= 2) {
-      console.log('granted')
       return next()
     } else {
-      res.status(401).json(new APIError('Insufficient permissions'), 401)
+      res.status(401).json(new APIError('Insufficient Permissions', 401))
     }
   }
 }
