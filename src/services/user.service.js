@@ -16,7 +16,7 @@ const registerUserForEvent = async (userId, eventId) => {
 
   user.addEvent(eventId)
   user.save()
-  event.addUser(userId)
+  await event.addUser(userId)
   event.save()
 
   return [user, event]

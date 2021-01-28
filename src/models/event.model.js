@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
+const User = require('./user.model')
 const Joi = require('joi')
+const APIError = require('../../utils/error')
 
 /**
  * Schema for event object
@@ -15,16 +17,19 @@ const schema = new mongoose.Schema({
 /**
  * @param {String} userId database ID of desired user
  */
-schema.methods.addUser = function (userId) {
-  let userIndex = this.registered.indexOf(userId)
-  if(userIndex < 0) this.registered.push(userId)
+schema.methods.addUser = async function (userId) {
+  const user = await User.findById({ _id: userId })
+  if(!user) throw new APIError('User Not Found', 404)
+
+  let userIndex = this.registered.map(function(e) { return e.id }).indexOf(userId)
+  if(userIndex < 0) this.registered.push({id: userId, name: user.name})
 }
 
 /**
  * @param {String} userId database ID of desired user 
  */
 schema.methods.removeUser = function (userId) {
-  let userIndex = this.registered.indexOf(userId)
+  let userIndex = this.registered.map(function(e) { return e.id }).indexOf(userId)
   if(userIndex >= 0) this.registered.splice(userIndex, 1)
 }
 
