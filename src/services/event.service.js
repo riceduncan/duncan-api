@@ -37,6 +37,7 @@ const updateEvent = async (newEvent, eventId) => {
   if(error) throw new APIError('Invalid Model', 400)
 
   let event = await Event.findByIdAndUpdate({ _id: eventId }, value)
+  if(!event) throw new APIError('Event Not Found', 404)
   return event
 }
 

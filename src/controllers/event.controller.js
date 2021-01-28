@@ -8,7 +8,7 @@ const router = express.Router()
  * GET /api/v1/events/
  * Gets list of all events
  */
-router.get('/', jwt.validate, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const events = await EventService.getAllEvents()
     res.status(200).json(events)
@@ -34,7 +34,7 @@ router.post('/', jwt.validate, jwt.checkAccess, async (req, res) => {
  * GET /api/v1/events/:eventId
  * Gets specific event
  */
-router.get('/:eventId', jwt.validate, async (req, res) => {
+router.get('/:eventId', async (req, res) => {
   try {
     const event = await EventService.getEventById(req.params.eventId)
     res.status(200).json(event)
