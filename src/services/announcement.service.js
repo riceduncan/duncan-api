@@ -6,7 +6,7 @@ const getAllAnnouncements = async () => {
 }
 
 const getAnnouncementById = async (announcementId) => {
-  const announcement = Announcement.findById({ _id: announcementId })
+  const announcement = await Announcement.findById({ _id: announcementId })
   if(!announcement) throw new APIError('Announcement Not Found', 404)
   return announcement
 }
@@ -23,12 +23,13 @@ const updateAnnouncement = async (newAnnouncement, announcementId) => {
   const { error, value } = Announcement.validateObject(newAnnouncement)
   if(error) throw new APIError('Invalid Model', 400)
 
-  const announcement = Announcement.findByIdAndUpdate({ _id: announcementId }, value)
+  const announcement = await Announcement.findByIdAndUpdate({ _id: announcementId }, value)
+  if(!announcement) throw new APIError('Announcement Not Found', 404)
   return announcement
 }
 
 const deleteAnnouncement = async (announcementId) => {
-  const announcement = Announcement.findByIdAndDelete({ _id: announcementId })
+  const announcement = await Announcement.findByIdAndDelete({ _id: announcementId })
   if(!announcement) throw new APIError('Announcement Not Found', 404)
   return announcement
 }
